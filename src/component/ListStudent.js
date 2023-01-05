@@ -1,9 +1,24 @@
-import React, {Component} from "react";
+import React, { Component } from "react";
 import Student from "./Student";
 class ListStudent extends Component {
-    render() {
-        return(
-<div className="card-body">
+  catchData = (info) => {
+    this.props.seeInfo(info)
+  }
+  getControl = (status) => {
+    this.props.propToggle(status)
+  }
+  catchInfo = (index) => {
+    this.props.deleteData(index)
+
+  }
+  render() {
+    let {student} = this.props;
+    let elementStudentList = student.map((st,index)=>{
+      return <Student key={st.studentsID} stInfo={st} stt={index+1} getData={this.catchData} showControl={this.getControl} deleteInfo ={this.catchInfo} stIndex={index}></Student>
+    })
+
+    return (
+      <div className="card-body">
         <h3 className="card-title">Danh sách sinh viên</h3>
         <div className="table-responsive pt-3">
           <table className="table table-bordered">
@@ -18,14 +33,12 @@ class ListStudent extends Component {
               </tr>
             </thead>
             <tbody>
-                <Student></Student>
-                <Student></Student>
-                <Student></Student>
+              {elementStudentList}
             </tbody>
           </table>
         </div>
       </div>
-        )
-    }
+    );
+  }
 }
 export default ListStudent;
