@@ -1,51 +1,43 @@
-import React, {Component} from "react";
-class Student extends Component {
+import React, {useContext} from 'react'
+import { ShareContext } from '../App'
+function Student({stt,stInfo, showStudent, handleDelete}) {
+  const {isToggle, studentList, selectedStudent, handleEdit} = useContext(ShareContext)
 
-render() {
-  let {stInfo} = this.props;
-  let showControl = () => {
-    this.props.showControl(true)
-  }
-  let pushData= () => {
-    this.props.getData(this.props.stInfo)
-    showControl()
-  }
-  let deleteInfo = () => {
-    this.props.deleteInfo(this.props.stIndex)
-  }
-    return (
-        <tr>
-        <td>{this.props.stt}</td>
-        <td>{stInfo.studentsID}</td>
+  return (
+    <tr>
+        <td>{stt}</td>
+        <td>{stInfo.studentId}</td>
         <td>{stInfo.name}</td>
         <td>{stInfo.age}</td>
-        <td>{stInfo.gender ? "Nam":"Nữ"}</td>
+        <td>{stInfo.gender ? "Nam" : "Nữ"}</td>
         <td>
           <div className="template-demo">
             <button
               type="button"
               className="btn btn-danger btn-icon-text"
-              onClick={pushData}
+              onClick={()=>{showStudent(stInfo)}}
             >
               Xem
             </button>
             <button
               type="button"
               className="btn btn-warning btn-icon-text"
+              onClick={() => handleEdit(stInfo)}
             >
               Sửa
             </button>
             <button
               type="button"
               className="btn btn-success btn-icon-text"
-              onClick={deleteInfo}
+              onClick={()=>handleDelete(stInfo)}
             >
               Xóa
             </button>
           </div>
         </td>
       </tr>
-    )
+  )
 }
-};
-export default Student;
+
+export default Student
+

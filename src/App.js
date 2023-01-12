@@ -1,131 +1,168 @@
 import Control from "./component/Control";
 import ListStudent from "./component/ListStudent";
 import Form from "./component/Form";
-import React, { Component } from "react";
-class App extends Component {
-  constructor() {
-    super();
-    this.state = {
-      isToggle: false,
-      data: "",
-      students: [
-        {
-          studentsID: "SV001",
-          name: "Trần Hải Yến",
-          age: 24,
-          gender: false,
-          birthDate: "23/02/1999",
-          address: "Hà Nội",
-        },
-        {
-          studentsID: "SV002",
-          name: "Trương Minh Thu",
-          age: 21,
-          gender: false,
-          birthDate: "10/09/2002",
-          address: "Yên Bái",
-        },
-        {
-          studentsID: "SV003",
-          name: "Đỗ Văn Chuân",
-          age: 27,
-          gender: true,
-          birthDate: "25/05/1996",
-          address: "Nam Định",
-        },
-      ],
-      searchData: "",
-      sortDir: "",
-      sortBy: "",
-    };
+import React, { useCallback, useState, createContext } from "react";
+import { v4 } from "uuid";
+
+export const ShareContext = createContext();
+
+function App() {
+  const [isToggle, setToggle] = useState(false);
+  const [studentList, setStudentList] = useState([
+    {
+      key: v4(),
+      studentId: "SV001",
+      name: "Trần Hải Yến",
+      age: 24,
+      gender: false,
+      birthDate: "1999-02-04",
+      birthPlace: "HN",
+      address: "Hà Nội",
+    },
+    {
+      key: v4(),
+      studentId: "SV002",
+      name: "Trương Minh Thu",
+      age: 21,
+      gender: false,
+      birthDate: "2000-09-11",
+      birthPlace: "YB",
+      address: "Yên Bái",
+    },
+    {
+      key: v4(),
+      studentId: "SV003",
+      name: "Đỗ Văn Chuân",
+      age: 27,
+      gender: true,
+      birthDate: "1996-05-25",
+      birthPlace: "NĐ",
+      address: "Nam Định",
+    },
+  ]);
+  const [searchData, setSearchData] = useState("");
+  const [selectedStudent, setSelectedStudent] = useState();
+  const [deleteSt, setDeleteSt] = useState();
+  const [sortedData, setSortedData] = useState("")
+  // const handleCreate = useCallback((isToggle, newStudent)=>{
+  //   setToggle(isToggle)
+  //   studentList.push(newStudent)
+  // })
+  const actionAndToggle = () => {
+    setToggle(true);
+    setSelectedStudent("");
+  };
+  const toggleOff = useCallback(() => {
+    setToggle(false);
+  });
+  const showStudent = useCallback(
+    (selectedStudent) => {
+      setToggle(true);
+      setSelectedStudent(selectedStudent);
+    },
+    [selectedStudent]
+  );
+  const handleDelete = useCallback((deleteStudent) => {
+    setStudentList(
+      studentList.filter((st) => {
+        if (st.key !== deleteStudent.key) {
+          return st;
+        }
+      }),
+      [deleteStudent]
+    );
+  });
+  const handleCreate = useCallback((newStudent) => {
+    setStudentList([...studentList, newStudent]);
+  },[studentList]) 
+
+  const handleEdit = useCallback((selectedStudent) => {
+    setToggle(true);
+    setSelectedStudent(selectedStudent);
+  },[selectedStudent]) 
+
+  const handleUpdate = useCallback((updatedStudent) => {
+    setStudentList(
+      studentList.map((st) => {
+        if (st.key === updatedStudent.key) {
+          return updatedStudent;
+        } else {
+          return st;
+        }
+      })
+    );
+  },[studentList]) 
+  const dataSearch = (searchData) => {
+    setSearchData(searchData);
+    if (searchData !== "") {
+      setStudentList(
+        studentList.filter((st) => {
+          if (
+            st.name.toLocaleLowerCase().includes(searchData.toLocaleLowerCase())
+          ) {
+            return st;
+          } 
+        })
+      );
+    }
+  };
+  const sortData = (sortedData) => {
+    setSortedData(sortedData)
+    if(sortedData==="studentName") {
+      studentList.sort((a, b) => a.name.localeCompare(b.name));
+    } else if (sortedData==="studentAge") {
+      studentList.sort((a, b) => a.age - b.age);
+    } else if (sortedData==="studentID") {
+      studentList.sort((a, b) => a.studentId.localeCompare(b.studentId));
+    }
   }
-  handleToggle = (status) => {
-    console.log(status);
-    this.setState({
-      isToggle: status,
-    });
-  };
-  showInfo = (info) => {
-    console.log(info);
-    this.setState({
-      data: info,
-    });
-  };
-  handleSearch = (searchData) => {
-    this.setState({
-      searchData: searchData,
-    });
-  };
-  handleSort = (sortDir, sortBy) => {
-    this.setState({
-      sortDir: sortDir,
-      sortBy: sortBy,
-    });
-  };
-  deleteSt = (index) => {
-    console.log(index);
-    this.setState({
-      students: this.state.students.splice(index, 1),
-    });
-  };
-  render() {
-    let students = [];
-    if (this.state.searchData != "") {
-      this.state.students.forEach((st) => {
-        if (
-          st.name.toLowerCase().includes(this.state.searchData.toLowerCase())
-        ) {
-          students.push(st);
-        }
-      });
-    } else {
-      students = [...this.state.students];
-    }
-    if (this.state.sortDir != "") {
-      if (this.state.sortDir == "studentName") {
-        if (this.state.sortBy == "ASC") {
-          students.sort((a, b) =>
-            a.name > b.name ? -1 : a.name < b.name ? 1 : 0
-          );
-        } else {
-          students.sort((a, b) =>
-            a.name > b.name ? 1 : a.name < b.name ? -1 : 0
-          );
-        }
-      } else {
-        if(this.state.sortBy == "ASC") {
-          students.sort((a, b) => (a.age - b.age));
-          
-        } else {
-          students.sort((a, b) => (b.age - a.age));
-        }
-        console.log("sort age",students);
-      }
-    }
-    let elementForm;
-    if (this.state.isToggle) {
-      elementForm = <Form getInfo={this.state.data}></Form>;
-    } else {
-      elementForm = "";
-    }
-    return (
-      <div className="App">
+  let elementForm;
+  if (isToggle) {
+    elementForm = (
+      <Form
+        // getInfo={this.state.data}
+        handleCreate={handleCreate}
+        handleUpdate={handleUpdate}
+        // studentInfo={this.state.selectedStudent}
+      ></Form>
+    );
+  } else {
+    elementForm = "";
+  }
+
+
+  return (
+    <div className="App">
+      <ShareContext.Provider
+        value={{
+          isToggle,
+          actionAndToggle,
+          toggleOff,
+          handleEdit,
+          dataSearch,
+          studentList,
+          searchData,
+          selectedStudent,
+          deleteSt,
+        }}
+      >
         <div className="row">
           <div className="col-lg-7 grid-margin stretch-card">
             <div className="card">
               {/* START CONTROL */}
               <Control
-                propToggle={this.handleToggle}
-                handleSearchProp={this.handleSearch}
-                handleSortProp={this.handleSort}
+              // actionAndToggleProp={handleActionAndToggle}
+              // handleSearchProp={this.handleSearch}
+              // handleSortProp={this.handleSort}
+              sortData={sortData}
               ></Control>
               {/* END CONTROL */}
               {/* START LIST STUDENT */}
               <ListStudent
-                student={students}
-                seeInfo={this.showInfo}
-                propToggle={this.handleToggle}
-                deleteData={this.deleteSt}
+                showStudent={showStudent}
+                // getInfoProp={this.getInfo}
+                // actionAndToggle={handleActionAndToggle}
+                handleDelete={handleDelete}
               ></ListStudent>
               {/* END LIST STUDENT */}
             </div>
@@ -133,9 +170,9 @@ class App extends Component {
           {/* START FORM SINH VIEN */}
           {elementForm}
         </div>
-      </div>
-    );
-  }
+      </ShareContext.Provider>
+    </div>
+  );
 }
 
 export default App;
